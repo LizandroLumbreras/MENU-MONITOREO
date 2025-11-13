@@ -17,7 +17,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       position: relative;
       overflow: hidden;
     }
@@ -25,6 +25,7 @@
       margin-bottom: 30px;
       font-size: 28px;
       z-index: 2;
+      text-align: center;
     }
     .menu-container {
       display: flex;
@@ -32,6 +33,7 @@
       justify-content: center;
       gap: 20px;
       z-index: 2;
+      max-width: 900px;
     }
     .menu-button {
       background-color: white;
@@ -43,8 +45,9 @@
       cursor: pointer;
       transition: transform 0.2s ease, background-color 0.3s ease;
       box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      min-width: 220px;
+      min-width: 260px;
       text-align: center;
+      font-weight: 600;
     }
     .menu-button:hover {
       background-color: #00416A;
@@ -65,28 +68,40 @@
   </style>
 </head>
 <body>
+
   <img src="logo_proveedora.png" alt="Logo La Proveedora" class="marca-agua">
+
   <h1>Menú Principal - Monitoreo</h1>
+
   <div class="menu-container">
+
+    <!-- NUEVOS ENLACES -->
+    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/AJUSTE-ZAPATA-NUEVO/'">
+      Ajuste Zapata
+    </button>
+
+    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/EXISTENCIA-ALMACEN-CIGARRO/'">
+      Existencia Almacén Cigarro
+    </button>
+
     <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/Monitoreo-Zapata/'">
-      Salidas Zapata
+      Monitoreo Salidas Zapata
     </button>
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/INVENTARIO-ZAPATA/'">
-      Stock Zapata
+
+    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/MONITOREO-SALIDAS-DULCES/'">
+      Monitoreo Salidas Dulces
     </button>
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/Monitoreo-cigarro/'">
-      Salidas Cigarro
+
+    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/MERMA-COSTEO/'">
+      Merma Costeada
     </button>
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/SROCK-CIGARRO-ENTRADAS-SALIDAS/'">
-      Stock Cigarro
+
+    <button class="menu-button" onclick="window.location.href='https://licaptio.github.io/CLASIFICACION-FACTURAS/'">
+      Clasificación de Facturas
     </button>
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/MONITOREO-MERMA/'">
-      Monitoreo de Mermas
-    </button>
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/AGREGAR-PRODUCTOS/'">
-      Catalogo Articulos
-    </button>
+
   </div>
+
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
@@ -94,5 +109,6 @@
         .catch(error => console.log('Error al registrar el Service Worker:', error));
     }
   </script>
+
 </body>
 </html>
