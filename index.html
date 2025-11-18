@@ -1,118 +1,282 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Menú Principal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#00416A">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to right, #00416A, #E4E5E6);
-      font-family: 'Segoe UI', sans-serif;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      position: relative;
-      overflow: hidden;
-    }
-    h1 {
-      margin-bottom: 30px;
-      font-size: 28px;
-      z-index: 2;
-      text-align: center;
-    }
-    .menu-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      z-index: 2;
-      max-width: 900px;
-    }
-    .menu-button {
-      background-color: white;
-      color: #00416A;
-      border: none;
-      border-radius: 12px;
-      padding: 15px 25px;
-      font-size: 18px;
-      cursor: pointer;
-      transition: transform 0.2s ease, background-color 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      min-width: 260px;
-      text-align: center;
-      font-weight: 600;
-    }
-    .menu-button:hover {
-      background-color: #00416A;
-      color: white;
-      transform: scale(1.05);
-    }
-    .marca-agua {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      opacity: 0.08;
-      z-index: 1;
-      max-width: 80%;
-      height: auto;
-      pointer-events: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Inventario Total – Almacén Zapata</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+ body{
+   font-family: Arial, sans-serif;
+   background:#f4f4f4;
+   padding:20px;
+ }
+ h2{
+   color:#00416A;
+   font-size:26px;
+   margin-bottom:20px;
+ }
+ table{
+   width:100%;
+   border-collapse:collapse;
+   background:white;
+   margin-top:15px;
+ }
+ th,td{
+   border:1px solid #ccc;
+   padding:10px;
+   text-align:center;
+   font-size:15px;
+ }
+ th{
+   background:#00416A;
+   color:white;
+ }
+ .positivo{ color:green; font-weight:bold; }
+ .negativo{ color:red; font-weight:bold; }
+</style>
+
 </head>
 <body>
 
-  <img src="logo_proveedora.png" alt="Logo La Proveedora" class="marca-agua">
+<h2>Inventario Total – Almacén Zapata</h2>
 
-  <h1>Menú Principal - Monitoreo</h1>
+<button onclick="aplicarAjuste()" 
+        style="padding:10px 20px; background:#00416A; color:white; border:none; border-radius:6px; font-size:16px; cursor:pointer;">
+  Aplicar Ajuste Final
+</button>
 
-  <div class="menu-container">
+<table>
+<thead>
+   <tr>
+     <th>Código</th>
+     <th>Descripción</th>
+     <th>Entradas</th>
+     <th>Salidas</th>
+     <th>Existencia</th>
+     <th>Real</th>
+     <th>Diferencia</th>
+   </tr>
+</thead>
+<tbody id="tablaInventario"></tbody>
+</table>
 
-    <!-- NUEVOS ENLACES -->
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/AJUSTE-ZAPATA-NUEVO/'">
-      Ajuste Zapata
-    </button>
+<script type="module">
 
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/EXISTENCIA-ALMACEN-CIGARRO/'">
-      Existencia Almacén Cigarro
-    </button>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { 
+  getFirestore, 
+  collection, 
+  onSnapshot,
+  doc,
+  setDoc,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/Monitoreo-Zapata/'">
-      Monitoreo Salidas Zapata
-    </button>
+// ------------------------------------------------------
+// FIREBASE
+// ------------------------------------------------------
+const firebaseConfig = {
+  apiKey: "AIzaSyCK5nb6u2CGRJ8AB1aPlRn54b97bdeAFeM",
+  authDomain: "inventariopv-643f1.firebaseapp.com",
+  projectId: "inventariopv-643f1",
+  storageBucket: "inventariopv-643f1.firebasestorage.app",
+  messagingSenderId: "96242533231",
+  appId: "1:96242533231:web:aae75a18fbaf9840529e9a"
+};
 
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/MONITOREO-SALIDAS-DULCES/'">
-      Monitoreo Salidas Dulces
-    </button>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/MONITOREO-MERMA/'">
-      Merma Costeada
-    </button>
+const tabla = document.getElementById("tablaInventario");
 
-    <button class="menu-button" onclick="window.location.href='https://licaptio.github.io/CLASIFICACION-FACTURAS/'">
-      Clasificación de Facturas
-    </button>
-       
-    <button class="menu-button" onclick="window.location.href='https://lizandrolumbreras.github.io/Inventario-Rutas/'">
-      Clasificación de Facturas
-    </button>
+// OBJETOS GLOBALES
+let inventario = {};
+let inventarioRealLocal = {};
 
-  </div>
+// ------------------------------------------------------
+// UNIFICADOR
+// ------------------------------------------------------
+function obtenerIdentificador(data) {
+  if (data.codigo) return data.codigo;
+  if (data.productoID) return data.productoID;
+  if (data.codigoBarra) return data.codigoBarra;
+  return "SIN-CODIGO";
+}
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log('Service Worker registrado'))
-        .catch(error => console.log('Error al registrar el Service Worker:', error));
+// ------------------------------------------------------
+// INVENTARIO REAL
+// ------------------------------------------------------
+function cargarInventarioReal() {
+  onSnapshot(collection(db, "almacenes/almacen_zapata/inventario_real"), snap => {
+
+    inventarioRealLocal = {};
+
+    snap.forEach(doc => {
+      const data = doc.data();
+      inventarioRealLocal[data.codigo] = data.inventarioReal;
+    });
+
+    dibujarTabla();
+  });
+}
+
+// ------------------------------------------------------
+// ENTRADAS / SALIDAS
+// ------------------------------------------------------
+function procesarDatos(coleccion, tipo) {
+
+  onSnapshot(coleccion, (snap) => {
+
+    snap.forEach(doc => {
+      const data = doc.data();
+
+      if (Array.isArray(data.productos)) {
+        data.productos.forEach(item => {
+          const id = obtenerIdentificador(item);
+
+          if (!inventario[id]) {
+            inventario[id] = { descripcion: item.descripcion || "-", entradas: 0, salidas: 0 };
+          }
+
+          const qty = Number(item.cantidad) || 0;
+          if (tipo === "entrada") inventario[id].entradas += qty;
+          if (tipo === "salida")  inventario[id].salidas += qty;
+        });
+
+      } else {
+
+        const id = obtenerIdentificador(data);
+
+        if (!inventario[id]) {
+          inventario[id] = { descripcion: data.descripcion || "-", entradas: 0, salidas: 0 };
+        }
+
+        const qty = Number(data.cantidad) || 0;
+
+        if (tipo === "entrada") inventario[id].entradas += qty;
+        if (tipo === "salida")  inventario[id].salidas += qty;
+      }
+    });
+
+    dibujarTabla();
+  });
+}
+
+// ------------------------------------------------------
+// TABLA FINAL
+// ------------------------------------------------------
+function dibujarTabla() {
+
+  tabla.innerHTML = "";
+
+  Object.keys(inventario).forEach(id => {
+
+    const p = inventario[id];
+    const existencia = p.entradas - p.salidas;
+
+    const real = inventarioRealLocal[id] ?? "";
+    const diferencia = real === "" ? "" : Number(real) - existencia;
+
+    tabla.innerHTML += `
+      <tr>
+        <td>${id}</td>
+        <td>${p.descripcion}</td>
+        <td>${p.entradas}</td>
+        <td>${p.salidas}</td>
+
+        <td class="${existencia < 0 ? 'negativo':'positivo'}">${existencia}</td>
+
+        <td>
+          <input type="number" value="${real}" 
+            style="width:80px;" 
+            oninput="actualizarReal('${id}','${p.descripcion}', this.value)">
+        </td>
+
+        <td>${diferencia}</td>
+      </tr>
+    `;
+  });
+}
+
+// ------------------------------------------------------
+// GUARDAR REAL
+// ------------------------------------------------------
+window.actualizarReal = function(codigo, descripcion, valor) {
+
+  inventarioRealLocal[codigo] = valor;
+
+  setDoc(doc(db, "almacenes/almacen_zapata/inventario_real", codigo), {
+    codigo,
+    descripcion,
+    inventarioReal: Number(valor),
+    fechaActualizacion: new Date().toISOString()
+  });
+
+};
+
+// ------------------------------------------------------
+// AJUSTE FINAL (YA NO SE DUPLICA)
+// ------------------------------------------------------
+window.aplicarAjuste = async function() {
+
+  const fecha = new Date().toISOString();
+
+  for (const codigo in inventario) {
+
+    const producto = inventario[codigo];
+    let real = inventarioRealLocal[codigo];
+
+    if (real === undefined || real === "") continue;
+
+    real = Number(real);
+
+    const existenciaActual = producto.entradas - producto.salidas;
+    const diferencia = real - existenciaActual;
+
+    if (diferencia > 0) {
+      await addDoc(collection(db, "almacenes/almacen_zapata/entradas"), {
+        tipo: "AJUSTE_POSITIVO",
+        fecha,
+        productos: [{ codigo, descripcion: producto.descripcion, cantidad: diferencia }]
+      });
     }
-  </script>
 
+    if (diferencia < 0) {
+      await addDoc(collection(db, "almacenes/almacen_zapata/salidas"), {
+        tipo: "AJUSTE_NEGATIVO",
+        fecha,
+        codigo,
+        descripcion: producto.descripcion,
+        cantidad: Math.abs(diferencia)
+      });
+    }
+
+    // ESTABLECER LA NUEVA EXISTENCIA = REAL (sin recargar)
+    producto.entradas = real;
+    producto.salidas = 0;
+
+    // BORRAR EL REAL
+    inventarioRealLocal[codigo] = "";
+    await setDoc(doc(db, "almacenes/almacen_zapata/inventario_real", codigo), {
+      codigo,
+      descripcion: producto.descripcion,
+      inventarioReal: "",
+      fechaActualizacion: new Date().toISOString()
+    });
+  }
+
+  dibujarTabla();
+  alert("Ajuste aplicado correctamente.");
+};
+
+// ------------------------------------------------------
+// INICIO
+// ------------------------------------------------------
+cargarInventarioReal();
+procesarDatos(collection(db, "almacenes/almacen_zapata/entradas"), "entrada");
+procesarDatos(collection(db, "almacenes/almacen_zapata/salidas"), "salida");
+
+</script>
 </body>
 </html>
